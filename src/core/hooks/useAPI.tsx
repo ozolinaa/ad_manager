@@ -8,8 +8,8 @@ interface GenericUseAPIState<GenericRequestType, GenericResponseType> {
   error?: unknown;
   forceReloadTimestamp?: number;
 }
-interface UseApiOptions {
-  showServiceErrorToast?: (error: unknown) => boolean;
+export interface UseApiOptions {
+  showError?: (error: unknown) => boolean;
   forceReloadTimestamp?: number;
 }
 
@@ -17,8 +17,8 @@ export type UseApiResult<GenericRequestType, GenericResponseType> = Omit<
   GenericUseAPIState<GenericRequestType, GenericResponseType>,
   "forceReloadTimestamp"
 > & {
-  justCompleted?: boolean;
-  justStarted?: boolean;
+  justCompleted: boolean;
+  justStarted: boolean;
 };
 
 const useAPI = <GenericRequestType, GenericResponseType>(
@@ -82,7 +82,7 @@ const useAPI = <GenericRequestType, GenericResponseType>(
   }, [
     apiClientMethod,
     request,
-    options?.showServiceErrorToast,
+    options?.showError,
     options?.forceReloadTimestamp,
   ]);
   return {
