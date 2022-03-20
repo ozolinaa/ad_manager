@@ -1,6 +1,6 @@
 import { Express } from "express";
 import cors from "cors";
-import ipLocator from "src/api/clients/ipLocator";
+import ipLocator from "server/clients/ipLocator";
 
 export default (app: Express) => {
   app.post("/ad", async (req, res) => {

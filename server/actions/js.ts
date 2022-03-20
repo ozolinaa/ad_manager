@@ -7,7 +7,6 @@ const wordRexex = RegExp(/^[a-zA-Z0-9_]*$/);
 export default (app: Express) => {
   app.get("/ad.js", (req, res) => {
     const fullUrl = `${req.protocol}://${req.hostname}`;
-    console.log(fullUrl);
 
     const campaign = (req.query.campaign || "").toString();
     if (!wordRexex.exec(campaign)) {
