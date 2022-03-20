@@ -1,51 +1,37 @@
 import path from "path";
-import fs from "fs";
 import express from "express";
-import React from "react";
-import ReactDOMServer from "react-dom/server";
-import { ServerStyleSheet, StyleSheetManager } from "styled-components";
-import ReactApp from "src/core/components/App";
+import index from "./actions/index";
+import js from "./actions/js";
+import adJsHandlePost from "./actions/adJsHandlePost";
+import auth from "./actions/auth";
 
-const PORT = parseInt(process.argv[process.argv.indexOf("--port") + 1]);
+import https from "https";
+import fs from "fs";
+
+// allow using fetch by node
+import fetch from "node-fetch";
+(globalThis as unknown as { fetch: typeof fetch }).fetch = fetch;
+
 const app = express();
+app.enable("trust proxy");
 
-app.get("/", (req, res) => {
-  const indexFile = path.resolve("./dist/index.html");
-  fs.readFile(indexFile, "utf8", (err, data) => {
-    if (err) {
-      console.error("Something went wrong:", err);
-      return res.status(500).send("Oops, better luck next time!");
-    }
+js(app);
+adJsHandlePost(app);
+auth(app);
+index(app);
 
-    const sheet = new ServerStyleSheet();
-    let reactAppHtml = "";
-    let styleTags = "";
-    try {
-      reactAppHtml = ReactDOMServer.renderToString(
-        <StyleSheetManager sheet={sheet.instance}>
-          <ReactApp />
-        </StyleSheetManager>
-      );
-      styleTags = sheet.getStyleTags();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      sheet.seal();
-    }
 
-    return res.send(
-      data
-        .replace("</head>", `${styleTags}\n</head>`)
-        .replace(
-          '<div id="app-root"></div>',
-          `<div id="app-root">${reactAppHtml}</div>`
-        )
-    );
+const port = parseInt(process.argv[process.argv.indexOf("--port") + 1]);
+const useHttps = true;
+if(useHttps) {
+  const key = fs.readFileSync("./key.pem");
+  const cert = fs.readFileSync("./cert.pem");
+  const server = https.createServer({ key: key, cert: cert }, app);
+  server.listen(port, () => {
+    console.log(`Server is listening on port ${port} using https`);
   });
-});
-
-app.use(express.static("./dist"));
-
-app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
-});
+} else {
+  app.listen(port, () => {
+    console.log(`Server is listening on port ${port} using http`);
+  });
+}

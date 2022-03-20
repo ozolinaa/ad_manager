@@ -1,7 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import UserDetails, { UserDetailsProps } from "src/user/components/UserDetails";
+import { Profile } from 'passport';
+import { Routes, Route, Link } from "react-router-dom";
+import UserDetails, { converProfileToUserDetailsProps } from "src/user/components/UserDetails";
 import Counter from "src/common/components/Counter";
+import APITester from "src/common/components/APITester";
+import LoginPage from "src/common/components/LoginPage";
 
 const Container = styled("div")`
   position: absolute;
@@ -23,21 +27,33 @@ const Container = styled("div")`
   ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 `;
 
-const userDetails: UserDetailsProps = {
-  id: "111",
-  fistName: "Anton",
-  lastName: "Ozolin",
-};
+export interface AppProps {
+  userProfile: Profile | undefined,
+}
 
-const App: React.FC = () => {
+
+
+const App: React.FC<AppProps> = (props: AppProps) => {
+  if(!props) {
+    return null;
+  }
   return (
-    <Container>
-      <div>
+    <div>
+        <Container>
+        <Routes>
+        <Route path="/" element={      <div>
         <h1>Hello React!</h1>
+        {props.userProfile ? <UserDetails {...converProfileToUserDetailsProps(props.userProfile)} /> : <Link to="/login">LOGIN</Link>}
         <Counter />
-        <UserDetails {...userDetails} />
-      </div>
-    </Container>
+        <APITester />
+      </div>} />
+        <Route path="/login" element={<LoginPage />} />
+      </Routes>
+
+    </Container>    
+    </div>
+
+
   );
 };
 

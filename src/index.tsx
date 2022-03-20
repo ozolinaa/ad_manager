@@ -7,6 +7,10 @@ import "whatwg-fetch";
 import "./globalStyles";
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "src/core/components/App";
+import App, {AppProps} from "src/core/components/App";
+import { BrowserRouter } from "react-router-dom";
+import { reactAppPropsKey } from "./consts";
 
-ReactDOM.hydrate(<App />, document.getElementById("app-root"));
+// window[reactAppPropsKey] was set during server side rendering
+const props = (window as any)[reactAppPropsKey] || {} as AppProps;
+ReactDOM.hydrate(<BrowserRouter><App {...props} /></BrowserRouter>, document.getElementById("app-root"));
