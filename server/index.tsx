@@ -3,6 +3,8 @@ import index from "./actions/index";
 import js from "./actions/js";
 import adJsHandlePost from "./actions/adJsHandlePost";
 import auth from "./actions/auth";
+import operation from "./actions/operation";
+
 import bodyParser from 'body-parser'
 
 
@@ -12,7 +14,6 @@ import fs from "fs";
 
 // allow using fetch by node
 import fetch from "node-fetch";
-import getIPLocation from "./actions/authorized/getIPLocation";
 (globalThis as unknown as { fetch: typeof fetch }).fetch = fetch;
 
 const app = express();
@@ -24,13 +25,11 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
-//
+
 js(app);
 adJsHandlePost(app);
 auth(app);
-//
-getIPLocation(app);
-//
+operation(app);
 index(app); // should be the last to capture all other requests
 
 

@@ -14,3 +14,8 @@ export type IPLocation = {
       name_en: string;
     };
   };
+
+
+  export type AsyncFunction = (req: any) => Promise<any>; 
+
+export type AsyncOperationsOnly = { [key: symbol]:  AsyncFunction }; 

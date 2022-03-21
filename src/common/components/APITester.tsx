@@ -1,22 +1,22 @@
 import React from "react";
-import ipLocator from "src/api/clients/ipLocator";
 import useAPIcaller from "src/api/hooks/useAPIcaller";
+import { serverOperations } from "src/api/serverOperations";
 
 const APITester: React.FC = () => {
-  const [callGetIPLocation, getIPLocationApi] = useAPIcaller(
-    ipLocator.getIPLocation
+  const [callIPGeoLookup, ipGeoLookupApi] = useAPIcaller(
+    serverOperations.IPGeoLookup
   );
 
   return (
     <div>
       <button
         onClick={() => {
-          callGetIPLocation("213.180.204.3");
+          callIPGeoLookup({'ip': "213.180.204.3"});
         }}
       >
         TestAPI
       </button>
-      <div>response: {JSON.stringify(getIPLocationApi.response)}</div>
+      <div>response: {JSON.stringify(ipGeoLookupApi.response)}</div>
     </div>
   );
 };
