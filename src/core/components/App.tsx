@@ -1,11 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import { Profile } from 'passport';
-import { Routes, Route, Link } from "react-router-dom";
-import UserDetails, { converProfileToUserDetailsProps } from "src/user/components/UserDetails";
-import Counter from "src/common/components/Counter";
-import APITester from "src/common/components/APITester";
-import LoginPage from "src/common/components/LoginPage";
+import AuthorizedContextProvider from "./AuthorizedContextProvider";
+import AuthorizedContent from "./AuthorizedContent";
 
 const Container = styled("div")`
   position: absolute;
@@ -34,26 +31,12 @@ export interface AppProps {
 
 
 const App: React.FC<AppProps> = (props: AppProps) => {
-  if(!props) {
-    return null;
-  }
   return (
-    <div>
-        <Container>
-        <Routes>
-        <Route path="/" element={      <div>
-        <h1>Hello React!</h1>
-        {props.userProfile ? <UserDetails {...converProfileToUserDetailsProps(props.userProfile)} /> : <Link to="/login">LOGIN</Link>}
-        <Counter />
-        <APITester />
-      </div>} />
-        <Route path="/login" element={<LoginPage />} />
-      </Routes>
-
-    </Container>    
-    </div>
-
-
+    <Container>
+      <AuthorizedContextProvider userProfile={props.userProfile }>
+        <AuthorizedContent />
+      </AuthorizedContextProvider>
+    </Container>
   );
 };
 

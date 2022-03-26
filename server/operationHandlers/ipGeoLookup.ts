@@ -1,7 +1,9 @@
 import ipLocator from 'server/clients/ipLocator'
-import {Operation, OperationRequest, OperationResponse} from 'src/api/types'
+import {OperationRequest, OperationResponse} from 'src/api/types'
 
-export const ipGeoLookup = async (req: OperationRequest<'IPGeoLookup'>): Promise<OperationResponse<'IPGeoLookup'>> => {
+const ipGeoLookup = async (req: OperationRequest<'IPGeoLookup'>): Promise<OperationResponse<'IPGeoLookup'>> => {
     const result = await ipLocator.getIPLocation(req.ip)
     return result;
 }
+
+export default ipGeoLookup;

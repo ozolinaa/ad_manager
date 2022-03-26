@@ -1,11 +1,15 @@
 import { Express } from "express";
 import { getUserProfile, isAuthorized } from "server/utils/auth";
 import { Operation, OperationRequest, OperationResponse, ServerRequest } from "src/api/types";
-import { operationsRequireAuthorization, ServerOperationsInterface } from "src/api/serverOperations";
-import { ipGeoLookup } from "server/operationHandlers/ipGeoLookup";
+import { operationsRequireAuthorization } from "src/api/serverOperations";
+import ipGeoLookup from "server/operationHandlers/ipGeoLookup";
+import getAdContextState from "server/operationHandlers/getAdContextState";
+import updateAdContextState from "server/operationHandlers/setAdContextState";
 
 const operationHandlers: Record<Operation, (req: OperationRequest<Operation>) => Promise<OperationResponse<Operation>>> = {
-  'IPGeoLookup': ipGeoLookup
+  'IPGeoLookup': ipGeoLookup,
+  'GetAdContextState': getAdContextState,
+  'UpdateAdContextState': updateAdContextState
 }
 
 export default (app: Express) => {
