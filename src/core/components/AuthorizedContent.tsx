@@ -1,6 +1,6 @@
 import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
-import AdIndexPage from "src/ad/components/AdIndexPage";
+import AdsPage from "src/ad/components/AdsPage";
 import APITester from "src/common/components/APITester";
 import UserDetails, { converProfileToUserDetailsProps } from "src/user/components/UserDetails";
 import { useAuthorizedContext } from "./AuthorizedContextProvider";
@@ -22,7 +22,7 @@ const AuthorizedContent: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<Welcome />} />
-      <Route path="/ads" element={<AdIndexPage />} />
+      <Route path="ads/*" element={<AdsPage />} />
     </Routes>
   );
 };

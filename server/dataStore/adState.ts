@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 import { AdContextState } from 'src/ad/components/AdContextProvider';
 
-const dataFilePath = path.resolve("././data/ad_data.json");
+const dataFilePath = path.resolve("./server/data/ad_data.json");
 
 const getData = async (): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -35,7 +35,8 @@ export const getAdState = async(): Promise<AdContextState> => {
     } catch (error) {
         console.error(error);
     }
-    if(!stateString) {
+    const parsed = JSON.parse(stateString);
+    if(!parsed || !Object.keys(parsed).length) {
         const stateToWrite: AdContextState = {
             timestamp: Date.now(),
             ads: [],
