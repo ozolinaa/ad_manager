@@ -1,6 +1,5 @@
 import React from 'react';
 import { Ad } from 'src/ad/types';
-import { createAd as _createAd } from 'src/ad/utils'; 
 import { HasFunctionsOnly, StateActionsContext } from '../../core/types';
 
 export interface AdContextState {
@@ -9,8 +8,9 @@ export interface AdContextState {
 }
 
 export interface AdContextActions extends HasFunctionsOnly {
-    createAd: ( type: Ad['type']) => Ad;
+    createAd: (ad: Ad) => Ad;
     updateAd: (ad: Ad) => void;
+    deleteAd: (id: string) => void;
     setState: (newState: AdContextState) => void;
 }
 
@@ -30,10 +30,8 @@ const AdContextProvider: React.FC<{ children: React.ReactElement }> = (props: { 
     const [state, setState] = React.useState(initialState);
 
     const actions: AdContextActions = {
-        createAd: (type: Ad['type']): Ad => {
-            const newAd: Ad = _createAd(type);
+        createAd: (newAd: Ad): Ad => {
             setState((prevState) => {
-                prevState.ads.push(newAd)
                 return {
                     ...prevState,
                     ads: [...prevState.ads, newAd]
@@ -54,6 +52,19 @@ const AdContextProvider: React.FC<{ children: React.ReactElement }> = (props: { 
                     ads: [...prevState.ads]
                 }
             });
+        },
+        deleteAd: (id: string) => {
+            setState((prevState) => {
+                const adToRemove = prevState.ads.find((x) => x.id == id);
+                if(!adToRemove) {
+                    return prevState;
+                }
+                const idx = prevState.ads.indexOf(adToRemove);
+                return {
+                    ...prevState,
+                    ads: [...prevState.ads.splice(idx, 1)]
+                }
+            })
         },
         setState: (newState: AdContextState) => {
             setState(newState);

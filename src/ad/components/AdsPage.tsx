@@ -2,27 +2,24 @@ import React from "react";
 import { Link, Route, Routes } from "react-router-dom";
 import AdContextProvider, { useAdContext } from "./AdContextProvider";
 import AdContextSyncerContextProvider, { useAdContextSyncerContext } from "./AdContextSyncerContextProvider";
+import { createBlankAd } from 'src/ad/utils'; 
+import AdItemEditable from "./AdItemEditable";
 
 const AdsIndexPage: React.FC = () => {
   const adContext = useAdContext();
   const adContextSyncerContext = useAdContextSyncerContext()
   return (
     <div>
-      adContextSyncer.modified: {JSON.stringify(adContextSyncerContext)}
-      <button onClick={() => adContext.actions.createAd('redirect')}>Add</button>
-      <button onClick={() => adContextSyncerContext.sendAdContextStateToServer()}>sendAdContextStateToServer</button>
+      <button onClick={() => adContext.actions.createAd(createBlankAd('redirect'))}>Add Redirect Ad</button>
+      <button 
+        onClick={() => adContextSyncerContext.sendAdContextStateToServer()} 
+        disabled={!adContextSyncerContext.modified}>
+          Save All Ads
+      </button>
 
-      <Link to="1">Manage Ad1</Link>
-    </div>
-  );
-};
-
-const AdSinglePage: React.FC = () => {
-  const adContext = useAdContext();
-
-  return (
-    <div>
-      This is AD 1
+      <div>
+        {adContext.state.ads.map((ad) => <AdItemEditable key={ad.id} {...ad} />)}
+      </div>
     </div>
   );
 };
@@ -42,7 +39,6 @@ const AdsPage: React.FC = () => {
     <HasAdContextSyncerContextProvider>
       <Routes>
         <Route path="/" element={<AdsIndexPage />} />
-        <Route path="1" element={<AdSinglePage />} />
       </Routes>
     </HasAdContextSyncerContextProvider>
   );
