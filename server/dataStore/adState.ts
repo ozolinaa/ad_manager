@@ -1,6 +1,7 @@
 import path from "path";
 import fs from "fs";
 import { AdContextState } from 'src/ad/components/AdContextProvider';
+import { BannerAd, isBannerAd, isRedirectAd, RedirectAd } from "src/ad/types";
 
 const dataFilePath = path.resolve("./server/data/ad_data.json");
 
@@ -57,5 +58,77 @@ export const setAdState = async(newState: AdContextState): Promise<AdContextStat
         timestamp: Date.now()
     }
     await setData(JSON.stringify(stateToWrite));
+    await rebuildCountryRegionCityTagAdsMapCache();
     return stateToWrite;
 }
+
+type AdLists = {
+    redirectAds: RedirectAd[],
+    bannerAds: BannerAd[];
+}
+type TagAdsMap = Map<string, AdLists>;
+type CityTagAdsMap = Map<string, TagAdsMap>;
+type RegionCityTagAdsMap = Map<string, CityTagAdsMap>;
+type CountryRegionCityTagAdsMap = Map<string, RegionCityTagAdsMap>;
+
+export const countryRegionCityTagAdsMapCache: CountryRegionCityTagAdsMap = new Map<string, RegionCityTagAdsMap>();
+
+const rebuildCountryRegionCityTagAdsMapCache = async () => {
+    const adState = await getAdState();
+
+    // important to clear old cache values
+    countryRegionCityTagAdsMapCache.clear();
+
+
+    adState?.ads.forEach((ad) => {
+        ad.geoSettings?.forEach((geoSetting) => {
+            let countryRegionCityTagAdsMap = countryRegionCityTagAdsMapCache.get(geoSetting.country);
+            if(!countryRegionCityTagAdsMap) {
+                countryRegionCityTagAdsMapCache.set(geoSetting.country, new Map<string, RegionCityTagAdsMap>());
+                countryRegionCityTagAdsMap = countryRegionCityTagAdsMapCache.get(geoSetting.country);
+            }
+            if (!countryRegionCityTagAdsMap) {
+                throw 'falsy countryRegionCityTagAdsMap';
+            }
+
+            let regionCityTagAdsMap = countryRegionCityTagAdsMap.get(geoSetting.region);
+            if(!regionCityTagAdsMap) {
+                countryRegionCityTagAdsMap.set(geoSetting.region, new Map<string, CityTagAdsMap>());
+                regionCityTagAdsMap = countryRegionCityTagAdsMap.get(geoSetting.region);
+            }
+            if(!regionCityTagAdsMap) {
+                throw 'falsy regionCityTagAdsMap';
+            }
+
+            let cityTagAdsMap = regionCityTagAdsMap.get(geoSetting.city);
+            if(!cityTagAdsMap) {
+                regionCityTagAdsMap.set(geoSetting.city, new Map<string, TagAdsMap>());
+                cityTagAdsMap = regionCityTagAdsMap.get(geoSetting.city);
+            }
+
+            ad.tags?.forEach((tag) => {
+                if(!cityTagAdsMap) {
+                    throw 'falsy cityTagAdsMap';
+                }
+                let tagAdsMap = cityTagAdsMap.get(tag.tagName);
+                if(!tagAdsMap) {
+                    cityTagAdsMap.set(tag.tagName, {
+                        redirectAds: [],
+                        bannerAds: []
+                    });
+                    tagAdsMap = cityTagAdsMap.get(tag.tagName);
+                }
+                if(!tagAdsMap) {
+                    throw 'falsy tagAdsMap';
+                }
+                if(isBannerAd(ad)) {
+                    tagAdsMap.bannerAds.push(ad);
+                } else if(isRedirectAd(ad)) {
+                    tagAdsMap.redirectAds.push(ad);
+                }
+            });
+        });
+    })
+}
+// invoke immediately 
+rebuildCountryRegionCityTagAdsMapCache();

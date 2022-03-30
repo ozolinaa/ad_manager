@@ -1,14 +1,14 @@
-type Redirect = {
+export type Redirect = {
     type: 'redirect'
     url: string
 }
 
-type Banner = {
+export type Banner = {
     type: 'banner'
     src: string
 }
 
-interface GeoSetting {
+export interface GeoSetting {
     country: string,
     region: string,
     city: string
@@ -26,11 +26,13 @@ export type Ad = {
     adName: string
 } & AdSetting & (Redirect | Banner);
 
+export type BannerAd = Ad & Banner;
+export type RedirectAd = Ad & Redirect;
 
-export const isBannerAd = (ad: Ad): ad is Ad & AdSetting & Banner => {
+export const isBannerAd = (ad: Ad): ad is BannerAd => {
     return ad.type == 'banner';
 }
 
-export const isRedirectAd = (ad: Ad): ad is Ad & AdSetting & Redirect => {
+export const isRedirectAd = (ad: Ad): ad is RedirectAd => {
     return ad.type == 'redirect';
 }
