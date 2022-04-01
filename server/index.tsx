@@ -1,7 +1,6 @@
 import express from "express";
 import index from "./actions/index";
-import js from "./actions/js";
-import adJsHandlePost from "./actions/adJsHandlePost";
+import adJs from "./actions/adJs";
 import auth from "./actions/auth";
 import operation from "./actions/operation";
 
@@ -26,8 +25,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 
-js(app);
-adJsHandlePost(app);
+adJs(app);
 auth(app);
 operation(app);
 index(app); // should be the last to capture all other requests
