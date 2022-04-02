@@ -7,8 +7,11 @@ It supports react server side rendering was following these articles:
  - [enabled styles for styled components](https://styled-components.com/docs/advanced#server-side-rendering)
 
 It is containerized using Docker:
-- `docker build . -t 'xtonyx/react_ssr'`
-- `docker run -d -p 3000:3000 --name react_ssr xtonyx/react_ssr`
+- `docker build . -t 'xtonyx/ad_manager'`
+- `docker run -d -p 4000:3000 --name ad_manager xtonyx/ad_manager`
+
+Reverse proxy configuration
+ - https://www.icescrum.com/documentation/reverse-proxy/
 
 NPM scripts description:
 - `npm run build:ui` builds static UI files *(into **./dist/** directory)*
