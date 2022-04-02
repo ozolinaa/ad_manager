@@ -14,7 +14,8 @@ const wordRexex = RegExp(/^[a-zA-Z0-9_]*$/);
 
 interface AdJsPayload {
   adType: Ad['type'],
-  adTags: string[]
+  adTags: string[],
+  clientIp?: string
 }
 
 export default (app: Express) => {
@@ -43,7 +44,11 @@ export default (app: Express) => {
 
     const adJsPayload: AdJsPayload = {
       adType,
-      adTags
+      adTags,
+    }
+
+    if(req.query.ip && typeof req.query.ip == 'string') {
+      adJsPayload.clientIp = req.query.ip;
     }
 
     const adJsFile = path.resolve("./server/adJs/ad.js");
@@ -62,17 +67,21 @@ export default (app: Express) => {
   });
 
   app.post("/ad", async (req, res) => {
-    console.log("POST");
     res.set("Content-Type", "text/javascript; charset=utf-8");
     res.set("Access-Control-Allow-Origin", "*");
 
     const adJsPayload = req.body as AdJsPayload;
-    const ip: string = '213.180.204.3' || (req.headers["x-forwarded-for"] as string || req.socket.remoteAddress as string);
-    const geo = await ipLocator.getIPLocation(ip);
+    const ip: string = adJsPayload.clientIp || (req.headers["x-forwarded-for"] as string || req.socket.remoteAddress as string);
 
-    if(adJsPayload?.adType == 'redirect') {
-      return handleRedirectAd(geo, adJsPayload.adTags, res);
+    try {
+      const geo = await ipLocator.getIPLocation(ip);
+      if(adJsPayload?.adType == 'redirect' && geo?.country?.name_en) {
+        return handleRedirectAd(geo, adJsPayload.adTags, res);
+      }
+    } catch (error) {
+      console.error(error);
     }
+
     return res.send('');
   });
 
@@ -82,7 +91,7 @@ export default (app: Express) => {
     const redirectAd: RedirectAd | undefined = redirectAds.length > 0 ? redirectAds[Math.floor(Math.random()*redirectAds.length)] : undefined;
 
     if(!redirectAd?.url) {
-      return res.send('console.log("redirectAd found")');
+      return res.send('console.log("redirectAd found");');
     } 
   
     const redirectJsFile = path.resolve("./server/adJs/redirect.js");
