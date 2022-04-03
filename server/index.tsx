@@ -16,7 +16,12 @@ import fetch from "node-fetch";
 (globalThis as unknown as { fetch: typeof fetch }).fetch = fetch;
 
 const app = express();
-app.enable("trust proxy");
+app.enable('trust proxy');
+app.set('trust proxy', (_proxyIp: string) => {
+  // trust any proxy (from any ip)
+  return true;
+});
+
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
