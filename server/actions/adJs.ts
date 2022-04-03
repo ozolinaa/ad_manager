@@ -51,6 +51,9 @@ export default (app: Express) => {
       adJsPayload.clientIp = req.query.ip;
     }
 
+    // TODO remove live below - this is for debugging purposes only
+    adJsPayload.clientIp = (req.headers["x-forwarded-for"] as string || req.socket.remoteAddress as string);
+
     const adJsFile = path.resolve("./server/adJs/ad.js");
     fs.readFile(adJsFile, "utf8", (err, data) => {
       if (err) {

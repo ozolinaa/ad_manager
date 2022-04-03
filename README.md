@@ -6,12 +6,14 @@ It supports react server side rendering was following these articles:
  - [initial rendering](https://www.digitalocean.com/community/tutorials/react-server-side-rendering)
  - [enabled styles for styled components](https://styled-components.com/docs/advanced#server-side-rendering)
 
-It is containerized using Docker:
-- `docker build . -t 'xtonyx/ad_manager'`
-- `docker run -d -p 4000:3000 --name ad_manager xtonyx/ad_manager`
+It is containerized using Docker and depends on IP_LOCATOR_HOST, see more [here](https://hub.docker.com/repository/docker/xtonyx/sypex-geo):
+- `docker network create -d bridge ad_manager_network`
+- `docker build . -t 'xtonyx/ad_manager:latest'`
+- `docker run -d --restart=unless-stopped --net=ad_manager_network -p 8080:3000 -v ~/docker/ad_manager/data:/opt/react-app/server/data:rw -e 'IP_LOCATOR_HOST=http://sypex-geo:16001' -e 'GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID' -e 'GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET' -e 'AUTHORIZED_EMAILS=email1, email2' --name ad_manager xtonyx/ad_manager:latest`
+- `docker network connect ad_manager_network sypex-geo`
 
 Reverse proxy configuration
- - https://www.icescrum.com/documentation/reverse-proxy/
+- https://www.icescrum.com/documentation/reverse-proxy/
 
 NPM scripts description:
 - `npm run build:ui` builds static UI files *(into **./dist/** directory)*

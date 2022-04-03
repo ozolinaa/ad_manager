@@ -1,6 +1,6 @@
 import { IPLocation } from "src/common/types";
 
-const host = "http://127.0.0.1:16001";
+const host: string = process.env.IP_LOCATOR_HOST || '';
 
 export default {
   getIPLocation: async (ip: string): Promise<IPLocation> => {
