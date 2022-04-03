@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 import { Express, Request, Response } from "express";
 import cors from "cors";
-import { getHostNameAndPort } from "server/utils/url";
+import { getClientIp, getHostNameAndPort } from "server/utils/url";
 
 import { Ad, RedirectAd } from "src/ad/types";
 import ipLocator from "server/clients/ipLocator";
@@ -52,7 +52,7 @@ export default (app: Express) => {
     }
 
     // TODO remove live below - this is for debugging purposes only
-    adJsPayload.clientIp = (req.headers["x-forwarded-for"] as string || req.socket.remoteAddress as string);
+    adJsPayload.clientIp = getClientIp(req);
 
     const adJsFile = path.resolve("./server/adJs/ad.js");
     fs.readFile(adJsFile, "utf8", (err, data) => {
@@ -74,7 +74,7 @@ export default (app: Express) => {
     res.set("Access-Control-Allow-Origin", "*");
 
     const adJsPayload = req.body as AdJsPayload;
-    const ip: string = adJsPayload.clientIp || (req.headers["x-forwarded-for"] as string || req.socket.remoteAddress as string);
+    const ip: string = adJsPayload.clientIp || getClientIp(req);
 
     try {
       const geo = await ipLocator.getIPLocation(ip);
