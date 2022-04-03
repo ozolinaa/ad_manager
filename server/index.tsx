@@ -32,7 +32,7 @@ index(app); // should be the last to capture all other requests
 
 
 const port = parseInt(process.argv[process.argv.indexOf("--port") + 1]);
-const useHttps = true;
+const useHttps = false;
 if(useHttps) {
   const key = fs.readFileSync("./key.pem");
   const cert = fs.readFileSync("./cert.pem");

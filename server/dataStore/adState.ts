@@ -5,6 +5,13 @@ import { Ad, BannerAd, isBannerAd, isRedirectAd, RedirectAd } from "src/ad/types
 
 const dataFilePath = path.resolve("./server/data/ad_data.json");
 
+// try to create an empty file once https://stackoverflow.com/a/31777314/7071543
+fs.writeFile(dataFilePath, '{}', { flag: 'wx' }, (err) => {
+    if (!err) {
+        console.log(`${dataFilePath} is created successfully`);
+    }
+});
+
 const getData = async (): Promise<string> => {
     return new Promise((resolve, reject) => {
         fs.readFile(dataFilePath, 'utf-8', (err, data) => {

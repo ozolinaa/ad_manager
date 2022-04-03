@@ -7,16 +7,33 @@ const APITester: React.FC = () => {
     serverOperations.IPGeoLookup
   );
 
+  const [ip, setIp] = React.useState('213.180.204.3');
+  const ipChangeHandler = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setIp(e.target.value);
+  }, [setIp]);
+
   return (
     <div>
+      <input type='text' value={ip} onChange={ipChangeHandler} />
       <button
         onClick={() => {
-          callIPGeoLookup({'ip': "213.180.204.3"});
+          callIPGeoLookup({ip});
         }}
       >
-        TestAPI
+        IP Geo Lookup
       </button>
-      <div>response: {JSON.stringify(ipGeoLookupApi.response)}</div>
+      {ipGeoLookupApi.response && (<div>
+        <h3>{ipGeoLookupApi?.request?.ip}</h3>
+        <div>
+          <label>Country:</label> <b>{ipGeoLookupApi.response.country.name_en}</b>
+        </div>
+        <div>
+          <label>Region:</label> <b>{ipGeoLookupApi.response.region.name_en}</b>
+        </div>
+        <div>
+          <label>City:</label> <b>{ipGeoLookupApi.response.city.name_en}</b>
+        </div>
+      </div>)}
     </div>
   );
 };
