@@ -8,9 +8,10 @@ It supports react server side rendering was following these articles:
 
 It is containerized using Docker and depends on IP_LOCATOR_HOST, see more [here](https://hub.docker.com/repository/docker/xtonyx/sypex-geo):
 - `docker network create -d bridge ad_manager_network`
-- `docker build . -t 'xtonyx/ad_manager:latest'`
-- `docker run -d --restart=unless-stopped --net=ad_manager_network -p 8080:3000 -v ~/docker/ad_manager/data:/opt/react-app/server/data:rw -e 'IP_LOCATOR_HOST=http://sypex-geo:16001' -e 'GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID' -e 'GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET' -e 'AUTHORIZED_EMAILS=email1, email2' --name ad_manager xtonyx/ad_manager:latest`
 - `docker network connect ad_manager_network sypex-geo`
+- `docker build . -t 'xtonyx/ad_manager:v1.0.5'`
+- `docker rm -f ad_manager`
+- `docker run -d --restart=unless-stopped --net=ad_manager_network -p 8080:3000 -v ~/docker/ad_manager/data:/opt/react-app/server/data:rw -e 'IP_LOCATOR_HOST=http://sypex-geo:16001' -e 'GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID' -e 'GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET' -e 'AUTHORIZED_EMAILS=AUTHORIZED_EMAILS' --name ad_manager xtonyx/ad_manager:v1.0.5`
 
 Reverse proxy configuration
 - https://www.icescrum.com/documentation/reverse-proxy/
