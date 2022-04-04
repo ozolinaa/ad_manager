@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 import { Express, Request, Response } from "express";
 import cors from "cors";
-import { getClientIp, getHostNameAndPort } from "server/utils/url";
+import { getClientIp, getHostNameWithCustomPort } from "server/utils/url";
 
 import { Ad, RedirectAd } from "src/ad/types";
 import ipLocator from "server/clients/ipLocator";
@@ -60,7 +60,7 @@ export default (app: Express) => {
       res.set("Content-Type", "text/javascript; charset=utf-8");
       return res.send(
         data
-          .replaceAll("{{hostNameAndPort}}", getHostNameAndPort(req))
+          .replaceAll("{{hostNameAndPort}}", getHostNameWithCustomPort(req))
           .replaceAll("{{adJsPayloadJSON}}", JSON.stringify(adJsPayload))
       );
     });

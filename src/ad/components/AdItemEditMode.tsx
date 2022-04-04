@@ -2,6 +2,7 @@ import React from 'react';
 import ArrayFormManager from 'src/common/components/ArrayFormManager';
 import Form from 'src/common/components/Form';
 import { Ad, isRedirectAd } from "../types";
+import { useAdContext } from './AdContextProvider';
 
 export interface AdItemEditModeProps {
     ad: Ad,
@@ -10,6 +11,7 @@ export interface AdItemEditModeProps {
 }
 const AdItemEditMode: React.FC<AdItemEditModeProps> = (props: AdItemEditModeProps) => {
 
+    const { actions } = useAdContext()
     const [updatedAd, setUpdatedAd] = React.useState<Ad>({} as Ad);
 
     React.useEffect(() => {
@@ -37,21 +39,22 @@ const AdItemEditMode: React.FC<AdItemEditModeProps> = (props: AdItemEditModeProp
                 fields={[{ fieldName: 'url' }]} 
                 handlePartialUpdate={handlePartialUpdate}
             />}
+            <div>Tags</div>
             <ArrayFormManager 
                 arr={updatedAd.tags || []} 
                 fields={[{fieldName: 'tagName'}]} 
                 handleUpdate={(arr) => {handlePartialUpdate({'tags': arr})}} 
             />
+            <div>Geo Settings</div>
             <ArrayFormManager 
                 arr={updatedAd.geoSettings || []} 
                 fields={[{fieldName: 'country'}, {fieldName: 'region'}, {fieldName: 'city'}]} 
                 handleUpdate={(arr) => {handlePartialUpdate({'geoSettings': arr})}} 
             />
-            
-            {JSON.stringify(props.ad)}
             <div>
                 <button onClick={() => { props.onSaveClick(updatedAd) }}>Save</button>
                 <button onClick={() => { props.onCancelClick() }}>Cancel</button>
+                <button onClick={() => { actions.deleteAd(props.ad.id) }}>Delete</button>
             </div>
 
         </div>

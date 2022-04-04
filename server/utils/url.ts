@@ -3,10 +3,10 @@ import { Request } from 'express';
 export const getOrigin = (req: Request): string => {
   const { protocol: localProtocol } = req;
   const protocol = req.headers["x-forwarded-proto"] as string || localProtocol
-  return `${protocol}://${getHostNameAndPort(req)}`;
+  return `${protocol}://${getHostNameWithCustomPort(req)}`;
 };
 
-export const getHostNameAndPort = (req: Request): string => {
+export const getHostNameWithCustomPort = (req: Request): string => {
   const { protocol: localProtocol, hostname: localHostname, socket: {localPort} } = req;
   const port = req.headers["x-forwarded-port"] as string || localPort
   const protocol = req.headers["x-forwarded-proto"] as string || localProtocol

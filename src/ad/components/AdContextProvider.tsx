@@ -60,9 +60,10 @@ const AdContextProvider: React.FC<{ children: React.ReactElement }> = (props: { 
                     return prevState;
                 }
                 const idx = prevState.ads.indexOf(adToRemove);
+                prevState.ads.splice(idx, 1);
                 return {
                     ...prevState,
-                    ads: [...prevState.ads.splice(idx, 1)]
+                    ads: [...prevState.ads]
                 }
             })
         },

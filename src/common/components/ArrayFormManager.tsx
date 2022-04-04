@@ -1,5 +1,6 @@
 import React from "react";
 import Form from "src/common/components/Form";
+import styled from "styled-components";
 import { Tag } from "../../ad/types";
 
 export interface ArrayFormManagerProps<T> {
@@ -11,7 +12,7 @@ export interface ArrayFormManagerProps<T> {
     handleUpdate: (updatedArr: T[]) => void
 }
 
-const ArrayFormManager = <T extends { [key: string]: any } >(props: ArrayFormManagerProps<T>) => {
+const ArrayFormManager = <T extends { [key: string]: any }>(props: ArrayFormManagerProps<T>) => {
 
     const handleDelete = React.useCallback((idx: number) => {
         props.arr.splice(idx, 1);
@@ -33,16 +34,25 @@ const ArrayFormManager = <T extends { [key: string]: any } >(props: ArrayFormMan
     return (
         <div>
             {props.arr.map((item, idx) => {
-                return(
+                return (
                     <div key={idx} >
-                        <Form 
-                            obj={item || {}} 
-                            fields={props.fields} 
-                            handlePartialUpdate={(partialData) => {
-                                handleUpdate(idx, partialData);
-                            }}
-                        />
-                        <button onClick={() => handleDelete(idx)}>Delete</button>
+                        <table>
+                            <tr>
+                                <td>
+                                    <Form
+                                        obj={item || {}}
+                                        fields={props.fields}
+                                        handlePartialUpdate={(partialData) => {
+                                            handleUpdate(idx, partialData);
+                                        }}
+                                    />
+                                </td>
+                                <td>
+                                    <button onClick={() => handleDelete(idx)}>Delete</button>
+                                </td>
+                            </tr>
+                        </table>
+
                     </div>
                 )
             })}

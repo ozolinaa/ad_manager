@@ -2,7 +2,7 @@ import React from "react";
 import useAPIcaller from "src/api/hooks/useAPIcaller";
 import { serverOperations } from "src/api/serverOperations";
 
-const APITester: React.FC = () => {
+const IPGeoTester: React.FC = () => {
   const [callIPGeoLookup, ipGeoLookupApi] = useAPIcaller(
     serverOperations.IPGeoLookup
   );
@@ -14,6 +14,9 @@ const APITester: React.FC = () => {
 
   return (
     <div>
+      <div>
+        <a href="https://ip.osnova.news/country/ru/#city" target="_blank">https://ip.osnova.news/country/ru/#city</a>
+      </div>
       <input type='text' value={ip} onChange={ipChangeHandler} />
       <button
         onClick={() => {
@@ -38,4 +41,4 @@ const APITester: React.FC = () => {
   );
 };
 
-export default APITester;
+export default IPGeoTester;
