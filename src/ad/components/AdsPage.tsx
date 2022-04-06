@@ -7,19 +7,23 @@ import AdItemEditable from "./AdItemEditable";
 
 const AdsIndexPage: React.FC = () => {
   const adContext = useAdContext();
-  const adContextSyncerContext = useAdContextSyncerContext()
+  const { modified, sendAdContextStateToServer } = useAdContextSyncerContext()
+
+  // automatically sendAdContextStateToServer once adContext.state was modified
+  React.useEffect(() => {
+    if(modified && adContext.state.timestamp > 0) {
+      sendAdContextStateToServer();
+    }
+  }, [modified])
+
   return (
     <div>
-      <button onClick={() => adContext.actions.createAd(createBlankAd('redirect'))}>Add Redirect Ad</button>
-      <button 
-        onClick={() => adContextSyncerContext.sendAdContextStateToServer()} 
-        disabled={!adContextSyncerContext.modified}>
-          Save All Ads
-      </button>
-
       <div>
         {adContext.state.ads.map((ad) => <AdItemEditable key={ad.id} {...ad} />)}
       </div>
+      <br />
+      <br />
+      <button onClick={() => adContext.actions.createAd(createBlankAd('redirect'))}>Add Redirect Ad</button>
     </div>
   );
 };

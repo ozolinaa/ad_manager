@@ -27,7 +27,7 @@ const AdItemEditable: React.FC<Ad> = (ad: Ad) => {
                     onEditClick={() => setAdEditing(true)}
                 />
             }
-
+            <br />
         </div>
     );
 };
