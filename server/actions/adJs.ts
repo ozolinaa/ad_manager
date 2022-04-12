@@ -4,7 +4,7 @@ import { Express, Request, Response } from "express";
 import cors from "cors";
 import { getClientIp, getHostNameWithCustomPort } from "server/utils/url";
 
-import { Ad, RedirectAd } from "src/ad/types";
+import { Ad, isRedirectAd, RedirectAd } from "src/ad/types";
 import ipLocator from "server/clients/ipLocator";
 import { IPLocation } from "src/common/types";
 import { getAdsByGeoAndTags } from "server/dataStore/adState";
@@ -86,13 +86,13 @@ export default (app: Express) => {
   });
 
   const handleRedirectAd = (geo: IPLocation, tags: string[], res: Response) => {
-    const { redirectAds } = getAdsByGeoAndTags(geo.country.name_en, geo.region.name_en, geo.city.name_en, tags);
+    const redirectAds = getAdsByGeoAndTags('redirect' ,geo.country.name_en, geo.region.name_en, geo.city.name_en, tags);
     
-    const redirectAd: RedirectAd | undefined = redirectAds.length > 0 ? redirectAds[Math.floor(Math.random()*redirectAds.length)] : undefined;
+    const redirectAd: Ad | undefined = redirectAds.length > 0 ? redirectAds[Math.floor(Math.random()*redirectAds.length)] : undefined;
 
-    if(!redirectAd?.url) {
+    if(!redirectAd || !isRedirectAd(redirectAd)) {
       return res.send('console.log("redirectAd found");');
-    } 
+    }
   
     const redirectJsFile = path.resolve("./server/adJs/redirect.js");
     fs.readFile(redirectJsFile, "utf8", (err, data) => {

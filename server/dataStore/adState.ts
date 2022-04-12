@@ -20,7 +20,7 @@ const getData = async (): Promise<string> => {
                 return;
             }
             resolve(data);
-          });
+        });
     });
 }
 
@@ -32,19 +32,19 @@ const setData = async (data: string): Promise<void> => {
                 return;
             }
             resolve();
-          });
+        });
     });
 }
 
-export const getAdState = async(): Promise<AdContextState> => {
-    let stateString = ""; 
+export const getAdState = async (): Promise<AdContextState> => {
+    let stateString = "";
     try {
         stateString = await getData();
     } catch (error) {
         console.error(error);
     }
     const parsed = JSON.parse(stateString);
-    if(!parsed || !Object.keys(parsed).length) {
+    if (!parsed || !Object.keys(parsed).length) {
         const stateToWrite: AdContextState = {
             timestamp: Date.now(),
             ads: [],
@@ -55,9 +55,9 @@ export const getAdState = async(): Promise<AdContextState> => {
     return JSON.parse(stateString);
 }
 
-export const setAdState = async(newState: AdContextState): Promise<AdContextState> => {
+export const setAdState = async (newState: AdContextState): Promise<AdContextState> => {
     const currentState = await getAdState();
-    if(newState.timestamp != currentState.timestamp) {
+    if (newState.timestamp != currentState.timestamp) {
         console.error('trying to set old state. Server state timestamp differs from the timestamp you are trying to set');
     }
     const stateToWrite: AdContextState = {
@@ -69,6 +69,7 @@ export const setAdState = async(newState: AdContextState): Promise<AdContextStat
     return stateToWrite;
 }
 
+type AdWithTagSet = Ad & { tagSet: Set<string> };
 type AdLists = {
     redirectAds: (RedirectAd & {tagSet: Set<string>})[],
     bannerAds: (BannerAd & {tagSet: Set<string>})[];
@@ -79,64 +80,52 @@ type CountryRegionCityAdListMap = Map<string, RegionCityAdListMap>;
 
 export const countryRegionCityAdListMapCache: CountryRegionCityAdListMap = new Map<string, CountryRegionCityAdListMap>();
 
-export const getAdsByGeoAndTags = (countryName: string, regionName: string, cityName: string, tags: string[]): AdLists => {
-  const adLists: AdLists[] = [];
 
-  const regionCityAdListMaps: RegionCityAdListMap[] = [];
-  [countryName, '*'].forEach((name) => {
-    const regionCityAdListMap: RegionCityAdListMap | undefined = countryRegionCityAdListMapCache.get(name);
-    if (regionCityAdListMap) {
-        regionCityAdListMaps.push(regionCityAdListMap);
+export const getAdsByGeoAndTags = (type: Ad['type'], countryName: string, regionName: string, cityName: string, tags: string[]): AdWithTagSet[] => {
+    const result: AdWithTagSet[] = [];
+
+    const adListMap: AdLists | undefined = countryRegionCityAdListMapCache.get(countryName)?.get(regionName)?.get(cityName)
+    if (adListMap) {
+        if(type == 'banner') {
+            adListMap.bannerAds.forEach((ad) => {
+                if (containsAllTags(ad, tags)) {
+                    result.push(ad);
+                }
+            })
+        } else if (type == 'redirect') {
+            adListMap.redirectAds.forEach((ad) => {
+                if (containsAllTags(ad, tags)) {
+                    result.push(ad);
+                }
+            })
+        };
     }
-  });
 
-  const cityAdListMaps: CityAdListMap[] = [];
-  [regionName, '*'].forEach((name) => {
-    regionCityAdListMaps.forEach((regionCityAdListMap) => {
-        const cityAdListMap: CityAdListMap | undefined = regionCityAdListMap.get(name);
-        if (cityAdListMap) {
-            cityAdListMaps.push(cityAdListMap);
+    if (result.length == 0) {
+        if(cityName != '*') {
+            return getAdsByGeoAndTags(type, countryName, regionName, '*', tags); 
         }
-    })
-  });
-
-  const cityAdLists: AdLists[] = [];
-  [cityName, '*'].forEach((name) => {
-    cityAdListMaps.forEach((cityAdListMap) => {
-        const AdListMap: AdLists | undefined = cityAdListMap.get(name);
-        if (AdListMap) {
-            cityAdLists.push(AdListMap);
+        if(regionName != '*') {
+            return getAdsByGeoAndTags(type, countryName, '*', cityName, tags); 
         }
-    })
-  });
+        if(countryName != '*') {
+            return getAdsByGeoAndTags(type, '*', regionName, cityName, tags); 
+        }
+    }
 
-  const result: AdLists = { bannerAds: [], redirectAds: [] };
-  cityAdLists.forEach((cityAdList) => {
-    cityAdList.bannerAds.forEach((ad) => {
-        if (containsAllTags(ad, tags)) {
-            result.bannerAds.push(ad);
-        } 
-    })
-    cityAdList.redirectAds.forEach((ad) => {
-        if (containsAllTags(ad, tags)) {
-            result.redirectAds.push(ad);
-        } 
-    })
-  })
-
-  return result;
+    return result;
 }
 
 const buildTagSet = (ad: Ad): Set<string> => {
-    return new Set((ad.tags||[]).map(x => x.tagName))
+    return new Set((ad.tags || []).map(x => x.tagName))
 }
 
-const containsAllTags = (adWithTagSet: Ad & {tagSet: Set<string>}, tagsToCheck: string[]): boolean => {
-    if(adWithTagSet.tagSet.size == 0 || tagsToCheck.length == 0) {
+const containsAllTags = (adWithTagSet: Ad & { tagSet: Set<string> }, tagsToCheck: string[]): boolean => {
+    if (adWithTagSet.tagSet.size == 0 || tagsToCheck.length == 0) {
         return false;
     }
     for (const tagToCheck of tagsToCheck) {
-        if(!adWithTagSet.tagSet.has(tagToCheck)) {
+        if (!adWithTagSet.tagSet.has(tagToCheck)) {
             return false;
         }
     };
@@ -153,7 +142,7 @@ const rebuildCountryRegionCityAdListMapCache = async () => {
     adState?.ads.forEach((ad) => {
         ad.geoSettings?.forEach((geoSetting) => {
             let countryRegionCityAdListMap = countryRegionCityAdListMapCache.get(geoSetting.country);
-            if(!countryRegionCityAdListMap) {
+            if (!countryRegionCityAdListMap) {
                 countryRegionCityAdListMapCache.set(geoSetting.country, new Map<string, RegionCityAdListMap>());
                 countryRegionCityAdListMap = countryRegionCityAdListMapCache.get(geoSetting.country);
             }
@@ -162,32 +151,32 @@ const rebuildCountryRegionCityAdListMapCache = async () => {
             }
 
             let regionCityAdListMap = countryRegionCityAdListMap.get(geoSetting.region);
-            if(!regionCityAdListMap) {
+            if (!regionCityAdListMap) {
                 countryRegionCityAdListMap.set(geoSetting.region, new Map<string, CityAdListMap>());
                 regionCityAdListMap = countryRegionCityAdListMap.get(geoSetting.region);
             }
-            if(!regionCityAdListMap) {
+            if (!regionCityAdListMap) {
                 throw 'falsy regionCityAdListMap';
             }
 
             let cityAdList = regionCityAdListMap.get(geoSetting.city);
-            if(!cityAdList) {
+            if (!cityAdList) {
                 regionCityAdListMap.set(geoSetting.city, {
                     bannerAds: [],
                     redirectAds: []
                 });
                 cityAdList = regionCityAdListMap.get(geoSetting.city);
             }
-            if(!cityAdList) {
+            if (!cityAdList) {
                 throw 'falsy cityAdList';
             }
 
-            if(isBannerAd(ad)) {
+            if (isBannerAd(ad)) {
                 cityAdList.bannerAds.push({
                     ...ad,
                     tagSet: buildTagSet(ad)
                 });
-            } else if(isRedirectAd(ad)) {
+            } else if (isRedirectAd(ad)) {
                 cityAdList.redirectAds.push({
                     ...ad,
                     tagSet: buildTagSet(ad)
